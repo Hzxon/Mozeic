@@ -2,13 +2,14 @@ import express from "express"
 import 'dotenv/config'
 
 // Import Routes
-
+import { connectDB, disconnectDB } from "./config/db.js"
 
 const app = express();
 
 // Middleware
 app.use(express.json());
 
+connectDB();
 
 
 // API Routes
