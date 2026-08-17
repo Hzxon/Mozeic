@@ -3,6 +3,7 @@ import 'dotenv/config'
 
 // Import Routes
 import { connectDB, disconnectDB } from "./config/db.js"
+import trackRoute from "./routes/track.route.js"
 
 const app = express();
 connectDB();
@@ -16,6 +17,8 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.send("Hello, World!");
 })
+
+app.use("/api/track", trackRoute);
 
 
 const port = process.env.PORT;
