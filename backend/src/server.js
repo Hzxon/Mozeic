@@ -5,29 +5,17 @@ import 'dotenv/config'
 import { connectDB, disconnectDB } from "./config/db.js"
 
 const app = express();
+connectDB();
+
 
 // Middleware
 app.use(express.json());
-
-connectDB();
 
 
 // API Routes
 app.get('/', (req, res) => {
   res.send("Hello, World!");
 })
-
-app.get('/api/v1/browse', async (req, res) => {
-
-})
-
-// musics
-
-
-// albums 
-
-
-
 
 
 const port = process.env.PORT;
