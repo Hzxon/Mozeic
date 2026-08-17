@@ -18,7 +18,7 @@ app.get('/', (req, res) => {
   res.send("Hello, World!");
 })
 
-app.use("/api/track", trackRoute);
+app.use("/api/tracks", trackRoute);
 
 
 const port = process.env.PORT;
