@@ -10,14 +10,27 @@ const streamTrack = async (req, res) => {
         return res.sendStatus(404)
     }
 
-    const filePath = track.filePath
-    const codec = track.codec.toLowerCase()
-    
-    if (codec == "mp3") codec = "mpeg"
-
-
+    const filePath = track.absoluteFilePath
+    // console.log({
+    //     databasePath: track.filePath,
+    //     absolutePath: track.absoluteFilePath,
+    //     exists: fs.existsSync(track.absoluteFilePath),
+    // });
     if (!fs.existsSync(filePath)) {
         return res.sendStatus(404)
+    }
+
+    const mimeTypes = {
+        MP3: "audio/mpeg", 
+        AAC: "audio/aac",
+        FLAC: "audio/flac"
+    }
+
+    const contentType = mimeTypes[track.codec]
+    if (!contentType) {
+        return res.status(500).json({
+            message: "Unsupported audio codec"
+        })
     }
 
     const stat = fs.statSync(filePath)
@@ -27,7 +40,7 @@ const streamTrack = async (req, res) => {
 
     if (!range) {
         res.status(200)
-        res.setHeader("Content-Type", `audio/${codec}`)
+        res.setHeader("Content-Type", contentType)
         res.setHeader("Content-Length", stat.size)
 
         return fs.createReadStream(filePath).pipe(res)
@@ -57,7 +70,7 @@ const streamTrack = async (req, res) => {
     res.setHeader("Content-Range", `bytes ${start}-${end}/${fileSize}`)
     res.setHeader("Accept-Ranges", "bytes")
     res.setHeader("Content-Length", chunkSize)
-    res.setHeader("Content-Type", `audio/${codec}`)
+    res.setHeader("Content-Type", contentType)
 
     const stream = fs.createReadStream(filePath, {
         start,

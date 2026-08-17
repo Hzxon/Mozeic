@@ -1,5 +1,6 @@
 import express from "express"
 import 'dotenv/config'
+import cors from "cors"
 
 // Import Routes
 import { connectDB, disconnectDB } from "./config/db.js"
@@ -11,6 +12,7 @@ connectDB();
 
 // Middleware
 app.use(express.json());
+app.use(cors())
 
 
 // API Routes
