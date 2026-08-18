@@ -1,27 +1,61 @@
 import { useEffect, useRef, useState } from 'react'
 
-const MusicPlayer = ({ track }) => {
+const MusicPlayer = ({ tracks }) => {
     const audioRef = useRef(null)
 
     const [isPlaying, setIsPlaying] = useState(false)
     const [currentTime, setCurrentTime] = useState(0)
     const [duration, setDuration] = useState(0)
     const [volume, setVolume] = useState(1)
+    const [currentIndex, setCurrentIndex] = useState(0)
+
+    const playTrack = (index) => { 
+        if (index < 0 || index >= tracks.length) return
+
+        setCurrentIndex(index)
+    }
+
+    const nextTrack = () => {
+        if (currentIndex < tracks.length - 1) {
+            setCurrentIndex(currentIndex + 1)
+        }
+    }
+
+    const previousTrack = () => {
+        if (currentIndex > 0) {
+            setCurrentIndex(currentIndex - 1)
+        }
+    }
+
+    const currentTrack = tracks[currentIndex]
 
     useEffect(() => {
         const audio = audioRef.current
 
-        if (!audio || !track) {
+        if (!audio || !currentTrack) {
             return;
         }
 
-        audio.src = `api/tracks/${track.id}/stream`
+        audio.src = `api/tracks/${currentTrack.id}/stream`
         audio.load()
 
         setCurrentTime(0)
         setDuration(0)
-        setIsPlaying(false)
-    }, [track])
+
+        const playAudio = async() => {
+            try {
+                await audio.play()
+            } catch (error) {
+                console.error("Failed to autoplay:", error)
+            }
+        }
+
+        audio.addEventListener("canplay", playAudio, { once: true })
+
+        return () => {
+            audio.removeEventListener("canplay", playAudio)
+        }
+    }, [currentTrack])
 
     useEffect(() => {
         const audio = audioRef.current
@@ -73,10 +107,12 @@ const MusicPlayer = ({ track }) => {
     }, [])
 
   return (
-    <div>
-        <audio ref={audioRef}/>
+    <div className="music-player">
+        <audio 
+            ref={audioRef}
+        />
 
-        <p>{track?.title ?? "No track selected"}</p>
+        <p>{currentTrack?.title ?? "No track selected"}</p>
 
         <button
             onClick={() => {
@@ -115,7 +151,15 @@ const MusicPlayer = ({ track }) => {
                 setVolume(Number(event.target.value))
             }}
         />
-    </div> 
+
+        <button onClick={previousTrack}>
+            Previous
+        </button>
+
+        <button onClick={nextTrack}>
+            Next
+        </button>
+    </div>
   )
 }
 
